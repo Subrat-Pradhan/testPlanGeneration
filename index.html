@@ -566,7 +566,6 @@
                     <label for="apiProvider" class="block text-sm font-semibold text-white">
                         AI Provider
                     </label>
-                    <a href="#" class="text-xs text-violet-300 hover:text-violet-200 font-medium">Need a key?</a>
                 </div>
 
                 <div class="mb-5">
@@ -619,22 +618,22 @@
                 <div class="card p-6 flex flex-col">
                     <h2 class="text-sm font-bold text-white uppercase tracking-wide mb-4">1. Requirements</h2>
                     <div
-                        class="group relative border-2 border-dashed border-white/30 rounded-xl p-6 text-center hover:border-violet-400 hover:bg-white/5 transition-all cursor-pointer flex-grow flex flex-col justify-center items-center">
+                        class="group relative border-2 border-dashed border-white/30 rounded-xl p-3 text-center hover:border-violet-400 hover:bg-white/5 transition-all cursor-pointer flex-grow flex flex-col justify-center items-center min-h-[120px]">
                         <input type="file" id="fileInput" accept=".pdf,.txt"
                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
 
-                        <div class="space-y-3 pointer-events-none">
+                        <div class="space-y-2 pointer-events-none">
                             <div
-                                class="mx-auto w-12 h-12 bg-violet-500/20 text-violet-300 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="mx-auto w-10 h-10 bg-violet-500/20 text-violet-300 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
                                     </path>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-white">Upload Requirements</p>
-                                <p class="text-xs text-white/60 mt-1">Drop PDF or TXT here</p>
+                                <p class="text-xs font-medium text-white">Upload Requirements</p>
+                                <p class="text-[10px] text-white/60 mt-0.5">Drop PDF or TXT here</p>
                             </div>
                         </div>
                     </div>
@@ -833,7 +832,7 @@
             }
 
             // State management
-            let apiProvider = sessionStorage.getItem('ai_provider') || 'openai';
+            let apiProvider = sessionStorage.getItem('ai_provider') || 'gemini';
             let apiKey = sessionStorage.getItem(`${apiProvider}_api_key`) || '';
             let testers = [];
             const tokenLimit = 16000; // Fixed token limit
