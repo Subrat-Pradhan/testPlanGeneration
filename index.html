@@ -239,6 +239,66 @@
             /* Ensure diagrams don't get squeezed too small */
         }
 
+        /* Dark Theme - Output Section Styling */
+        @media (prefers-color-scheme: dark) {
+            #output {
+                background: rgba(30, 41, 59, 0.3);
+                border-radius: var(--radius-lg);
+                padding: 1.5rem;
+            }
+
+            #output h1,
+            #output h2,
+            #output h3,
+            #output h4,
+            #output h5,
+            #output h6 {
+                color: #f8fafc !important;
+            }
+
+            #output p {
+                color: #cbd5e1 !important;
+            }
+
+            #output ul,
+            #output ol {
+                color: #cbd5e1 !important;
+            }
+
+            #output li {
+                color: #cbd5e1 !important;
+            }
+
+            #output strong {
+                color: #f8fafc !important;
+            }
+
+            #output th {
+                background: rgba(139, 92, 246, 0.2) !important;
+                color: #f8fafc !important;
+            }
+
+            #output td {
+                color: #cbd5e1 !important;
+            }
+
+            #output blockquote {
+                color: #cbd5e1 !important;
+                background: rgba(139, 92, 246, 0.1) !important;
+            }
+
+            #output :not(pre)>code {
+                background: rgba(139, 92, 246, 0.2) !important;
+                color: #c4b5fd !important;
+            }
+
+            #output .table-wrapper {
+                background: rgba(30, 41, 59, 0.3) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+        }
+
+
 
         /* Safari Backdrop Support */
         .backdrop-blur-sm {
@@ -385,6 +445,12 @@
                 color: var(--text-main) !important;
             }
 
+            /* Light theme option styles */
+            select option {
+                background: white !important;
+                color: #0f172a !important;
+            }
+
             input::placeholder {
                 color: #94a3b8 !important;
             }
@@ -443,6 +509,41 @@
                 color: var(--text-muted) !important;
             }
         }
+
+        /* Dark Theme - Dropdown Option Styling */
+        @media (prefers-color-scheme: dark) {
+            select option {
+                background-color: #1e293b;
+                color: #f8fafc;
+            }
+        }
+
+        /* Force option colors for all themes */
+        select option {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 8px;
+        }
+
+        /* Light mode override for options */
+        @media (prefers-color-scheme: light) {
+            select option {
+                background-color: white;
+                color: #0f172a;
+            }
+        }
+
+        /* Scrollbar hiding utilities */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
     </style>
 </head>
 
@@ -472,8 +573,8 @@
                     <div class="relative">
                         <select id="apiProvider"
                             class="w-full pl-4 pr-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white font-medium focus:bg-white/20 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all appearance-none cursor-pointer">
-                            <option value="openai">OpenAI (GPT-4)</option>
                             <option value="gemini">Google Gemini</option>
+                            <option value="openai">OpenAI (GPT-4)</option>
                         </select>
                         <div
                             class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-white/60">
@@ -510,15 +611,15 @@
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 items-start">
-            <!-- Input Section (Left Sidebar) -->
-            <div class="xl:col-span-1 space-y-6">
+        <!-- Main Content Stack -->
+        <div class="space-y-8">
+            <!-- Inputs Section (Top Grid) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                 <!-- File Upload -->
-                <div class="card p-6">
+                <div class="card p-6 flex flex-col">
                     <h2 class="text-sm font-bold text-white uppercase tracking-wide mb-4">1. Requirements</h2>
                     <div
-                        class="group relative border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:border-violet-400 hover:bg-white/5 transition-all cursor-pointer">
+                        class="group relative border-2 border-dashed border-white/30 rounded-xl p-6 text-center hover:border-violet-400 hover:bg-white/5 transition-all cursor-pointer flex-grow flex flex-col justify-center items-center">
                         <input type="file" id="fileInput" accept=".pdf,.txt"
                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
 
@@ -549,27 +650,38 @@
                 </div>
 
                 <!-- Timeline Input -->
-                <div class="card p-6">
-                    <label class="block text-sm font-bold text-white uppercase tracking-wide mb-3">
+                <div class="card p-6 flex flex-col">
+                    <label class="block text-sm font-bold text-white uppercase tracking-wide mb-4">
                         2. Timeline
                     </label>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1 min-w-0">
+                    <div class="flex flex-col gap-4 flex-grow">
+                        <div>
                             <label for="startDate" class="block text-xs font-medium text-white/70 mb-1">Start
                                 Date</label>
                             <input type="date" id="startDate" name="startDate"
                                 class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:border-violet-400 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all" />
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div>
                             <label for="endDate" class="block text-xs font-medium text-white/70 mb-1">End Date</label>
                             <input type="date" id="endDate" name="endDate"
                                 class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:border-violet-400 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all" />
                         </div>
                     </div>
+                    <!-- Timeline Stats -->
+                    <div id="timelineStats" class="hidden mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+                        <div class="bg-white/5 rounded-lg p-3 text-center">
+                            <p class="text-[10px] uppercase font-bold text-white/50 tracking-wider">Total Days</p>
+                            <p id="totalDays" class="text-xl font-bold text-white mt-1">-</p>
+                        </div>
+                        <div class="bg-violet-500/10 rounded-lg p-3 text-center border border-violet-500/20">
+                            <p class="text-[10px] uppercase font-bold text-violet-300 tracking-wider">Working Days</p>
+                            <p id="workingDays" class="text-xl font-bold text-violet-200 mt-1">-</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Resource Manager -->
-                <div class="card p-6">
+                <div class="card p-6 flex flex-col">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-sm font-bold text-white uppercase tracking-wide">3. Team</h2>
                         <button id="addTester"
@@ -577,47 +689,73 @@
                             + Add
                         </button>
                     </div>
-                    <div id="testersList" class="space-y-4">
+                    <div id="testersList" class="space-y-4 flex-grow">
                         <!-- Testers will be added here dynamically -->
                     </div>
                     <div id="noTesters" class="text-center py-8 border border-dashed border-white/20 rounded-lg">
                         <p class="text-sm text-white/50 font-medium">No testers added</p>
                     </div>
                 </div>
-
-                <!-- Generate Button -->
-                <button id="generateBtn"
-                    class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:from-violet-700 hover:to-purple-700 focus:ring-4 focus:ring-violet-500/30 transition-all font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-                    disabled>
-                    Generate Test Plan
-                </button>
             </div>
 
-            <!-- Output Section (Right Side) -->
-            <div class="xl:col-span-2 text-left">
-                <div class="card p-8 h-full min-h-[600px] flex flex-col">
-                    <div class="flex justify-between items-center mb-6 pb-6 border-b border-white/10">
-                        <h2 class="text-xl font-bold text-white">Generated Plan</h2>
-                        <button id="downloadPdf"
-                            class="hidden flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium shadow-lg">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Generate Button -->
+            <button id="generateBtn"
+                class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:from-violet-700 hover:to-purple-700 focus:ring-4 focus:ring-violet-500/30 transition-all font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                disabled>
+                Generate Test Plan
+            </button>
+
+            <!-- Output Section -->
+            <div class="card p-8 min-h-[600px] flex flex-col">
+                <div class="flex justify-between items-center mb-6 pb-6 border-b border-white/10">
+                    <h2 class="text-xl font-bold text-white">Test Plan</h2>
+                    <button id="downloadPdf"
+                        class="hidden flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium shadow-lg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download PDF
+                    </button>
+                </div>
+                <div id="output" class="flex-grow max-w-none fade-in">
+                    <div class="h-full flex flex-col items-center justify-center text-white/30 py-20">
+                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                            <svg class="h-10 w-10 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                </path>
                             </svg>
-                            Download PDF
-                        </button>
+                        </div>
+                        <p class="font-medium text-white/50">Ready to generate</p>
                     </div>
-                    <div id="output" class="flex-grow max-w-none fade-in">
-                        <div class="h-full flex flex-col items-center justify-center text-white/30 py-20">
-                            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                <svg class="h-10 w-10 text-white/30" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <p class="font-medium text-white/50">Ready to generate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Disclaimer Section (Hidden by default, shown after generation) -->
+        <div id="aiDisclaimer" class="hidden mt-12 max-w-4xl mx-auto">
+            <div class="card p-6 border-l-4 border-yellow-500">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-white mb-2">⚠️ AI-Generated Content Notice</h3>
+                        <div class="text-white/80 text-sm leading-relaxed">
+                            <p class="mb-2">This test plan was generated by AI and may contain errors, omissions, or
+                                inaccuracies. <strong class="text-white">Human review and validation are
+                                    required.</strong></p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Always verify the content against your specific requirements and organizational
+                                    standards.</li>
+                                <li>If you are not satisfied with the response, please refine your inputs and <strong
+                                        class="text-white">regenerate the plan</strong>.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -644,9 +782,20 @@
                     💸 Free Forever
                 </span>
             </div>
-            <p class="mt-6 text-xs text-white/50">
-                &copy; 2026 AI Test Plan Generator. Runs entirely in your browser.
-            </p>
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <p class="text-xs text-white/50">
+                    &copy; 2026 AI Test Plan Generator. Runs entirely in your browser.
+                </p>
+                <a href="https://github.com/Subrat-Pradhan/testPlanGeneration" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-xs font-medium transition-all hover:scale-105">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd"
+                            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
         </div>
     </div>
 
@@ -841,6 +990,59 @@
                 checkGenerateButtonState();
             });
 
+            // Timeline Logic
+            const timelineStats = document.getElementById('timelineStats');
+            const totalDaysEl = document.getElementById('totalDays');
+            const workingDaysEl = document.getElementById('workingDays');
+
+            function calculateWorkingDays(start, end) {
+                let count = 0;
+                let current = new Date(start);
+                const endDate = new Date(end);
+
+                while (current <= endDate) {
+                    const day = current.getDay();
+                    if (day !== 0 && day !== 6) { // 0 is Sunday, 6 is Saturday
+                        count++;
+                    }
+                    current.setDate(current.getDate() + 1);
+                }
+                return count;
+            }
+
+            function updateTimelineStats() {
+                const start = startDateInput.value;
+                const end = endDateInput.value;
+
+                if (start && end) {
+                    const startDate = new Date(start);
+                    const endDate = new Date(end);
+
+                    if (endDate >= startDate) {
+                        // Calculate total days (inclusive)
+                        const diffTime = Math.abs(endDate - startDate);
+                        const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                        // Calculate working days
+                        const workingDays = calculateWorkingDays(startDate, endDate);
+
+                        totalDaysEl.textContent = totalDays;
+                        workingDaysEl.textContent = workingDays;
+                        timelineStats.classList.remove('hidden');
+                        timelineStats.classList.add('grid');
+                    } else {
+                        timelineStats.classList.add('hidden');
+                        timelineStats.classList.remove('grid');
+                    }
+                } else {
+                    timelineStats.classList.add('hidden');
+                    timelineStats.classList.remove('grid');
+                }
+            }
+
+            startDateInput.addEventListener('change', updateTimelineStats);
+            endDateInput.addEventListener('change', updateTimelineStats);
+
             // Extract text from file
             async function extractTextFromFile(file) {
                 // ... existing implementation ...
@@ -898,6 +1100,13 @@
 
             // Render Testers
             function renderTesters() {
+                // Conditional Scroll Logic: only scroll if > 2 testers
+                if (testers.length > 2) {
+                    testersList.classList.add('overflow-y-auto', 'max-h-[500px]', 'no-scrollbar', 'pr-2');
+                } else {
+                    testersList.classList.remove('overflow-y-auto', 'max-h-[500px]', 'no-scrollbar', 'pr-2');
+                }
+
                 if (testers.length === 0) {
                     noTesters.classList.remove('hidden');
                     testersList.innerHTML = '';
@@ -908,23 +1117,13 @@
                 testersList.innerHTML = testers.map(tester => `
                 <div class="bg-white/5 border border-white/10 rounded-lg p-5 space-y-4 hover:border-white/20 transition-colors backdrop-blur-sm">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-bold text-white">Tester ${testers.indexOf(tester) + 1}</span>
+                        <span class="text-sm font-bold text-white">${tester.specialization} Tester ${testers.indexOf(tester) + 1}</span>
                         <button 
                             onclick="removeTester(${tester.id})" 
                             class="text-red-400 hover:text-red-300 text-xs font-bold uppercase tracking-wide transition-colors"
                         >
                             Remove
                         </button>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">
-                            Experience: <span id="exp-${tester.id}" class="text-violet-300 font-bold">${tester.experience}</span> Years
-                        </label>
-                        <div class="experience-bar" onclick="updateTesterExperienceFromBar(${tester.id}, event)">
-                            <div class="experience-bar-fill" style="width: ${(tester.experience / 5) * 100}%">
-                                ${tester.experience > 0 ? tester.experience + 'yr' : ''}
-                            </div>
-                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">Specialization</label>
@@ -939,6 +1138,16 @@
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-white/60">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">
+                            Experience: <span id="exp-${tester.id}" class="text-violet-300 font-bold">${tester.experience}</span> Years
+                        </label>
+                        <div class="experience-bar" onclick="updateTesterExperienceFromBar(${tester.id}, event)">
+                            <div class="experience-bar-fill" style="width: ${(tester.experience / 5) * 100}%">
+                                ${tester.experience > 0 ? tester.experience + 'yr' : ''}
                             </div>
                         </div>
                     </div>
@@ -975,6 +1184,7 @@
                 const tester = testers.find(t => t.id === id);
                 if (tester) {
                     tester.specialization = value;
+                    renderTesters();
                 }
             };
 
@@ -1021,7 +1231,7 @@
 
                     // Construct prompt
                     const resourcesText = testers.map((tester, idx) =>
-                        `Tester ${idx + 1}: ${tester.experience} years of experience, Specialization: ${tester.specialization}`
+                        `${tester.specialization} Tester ${idx + 1}: ${tester.experience} years of experience, Specialization: ${tester.specialization}`
                     ).join('\n');
 
                     const prompt = `You are an experienced QA Lead. Generate a comprehensive Test Plan based on the following requirements.
@@ -1094,6 +1304,7 @@ IMPORTANT FORMATTING REQUIREMENTS:
 - Add visual separators and clear section headers
 - Use bullet points and numbered lists where appropriate
 - Be specific about task assignments to each tester based on their experience and specialization
+- STRICTLY assign tasks based on specialization (e.g. Automation Testers for scripting, Manual Testers for test case creation/execution)
 - DO NOT create extremely long table cells - keep content brief and to the point
 
 MARKDOWN TABLE FORMAT EXAMPLE (use this exact syntax - each row on a new line):
@@ -1274,11 +1485,15 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                         // Render Mermaid diagrams
                         if (window.mermaid) { window.mermaid.run?.(); }
                         downloadPdfBtn.classList.remove('hidden');
+                        // Show AI disclaimer
+                        document.getElementById('aiDisclaimer').classList.remove('hidden');
                     } catch (parseError) {
                         console.error('Markdown parsing error:', parseError);
                         // Fallback: display raw markdown with code formatting
                         output.innerHTML = `<pre class="bg-slate-100 p-4 rounded-lg overflow-auto">${markdownContent}</pre>`;
                         downloadPdfBtn.classList.remove('hidden');
+                        // Show AI disclaimer
+                        document.getElementById('aiDisclaimer').classList.remove('hidden');
                     }
 
                 } catch (error) {
@@ -1332,85 +1547,328 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                 return cssText;
             };
 
-            // Download PDF Button Handler
+            // Download PDF Button Handler - Using iframe print approach
             downloadPdfBtn.addEventListener('click', async () => {
                 const element = output; // The content we want to print
-
                 const originalTitle = document.title;
-                // Direct PDF Download using html2pdf.js
                 const filename = "AI_Test_Plan_" + new Date().toISOString().slice(0, 10) + ".pdf";
 
-                // Clone content to create a clean PDF-only version
-                const contentClone = element.cloneNode(true);
+                // Set document title for PDF
+                document.title = filename.replace('.pdf', '');
 
                 // Get team info for cover page
                 const projectTeam = testers.length > 0
-                    ? testers.map(t => `${t.specialization} (${t.experience}y)`).join(', ')
+                    ? testers.map((t, i) => `${t.specialization} Tester ${i + 1} (${t.experience}y)`).join(', ')
                     : "Not specified";
 
-                // Create a temporary container for PDF generation
-                const pdfContainer = document.createElement('div');
-                pdfContainer.style.width = '800px'; // Fixed width for A4 consistency
-                pdfContainer.style.background = 'white';
-                pdfContainer.style.color = '#1e293b';
-                pdfContainer.style.padding = '40px';
-                pdfContainer.style.fontFamily = "'Inter', sans-serif";
+                // Create a hidden iframe for printing
+                const printFrame = document.createElement("iframe");
+                printFrame.style.position = "fixed";
+                printFrame.style.right = "0";
+                printFrame.style.bottom = "0";
+                printFrame.style.width = "0";
+                printFrame.style.height = "0";
+                printFrame.style.border = "0";
+                printFrame.id = "printFrame";
+                document.body.appendChild(printFrame);
 
-                // Add Cover Page
-                pdfContainer.innerHTML = `
-                    <div style="height: 1000px; display: flex; flex-direction: column; justify-content: center; text-align: center; page-break-after: always;">
-                        <h1 style="font-size: 3rem; color: #4f46e5; margin-bottom: 1rem;">Test Plan</h1>
-                        <div style="font-size: 1.5rem; color: #64748b; margin-bottom: 4rem;">Generated by AI Test Plan Generator</div>
-                        <div style="text-align: left; max-width: 600px; margin: 0 auto; padding: 2rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
-                            <p style="margin: 10px 0;"><strong>📅 Date:</strong> ${new Date().toLocaleDateString()}</p>
-                            <p style="margin: 10px 0;"><strong>🤖 AI Model:</strong> ${apiProvider.toUpperCase()}</p>
-                            <p style="margin: 10px 0;"><strong>👥 Team Composition:</strong> ${projectTeam}</p>
-                        </div>
-                    </div>
-                `;
-
-                // Add Main Content
-                const mainContent = document.createElement('div');
-                mainContent.innerHTML = contentClone.innerHTML;
-
-                // Style cleanups for PDF
-                const headings = mainContent.querySelectorAll('h1, h2, h3');
-                headings.forEach(h => {
-                    h.style.color = '#1e293b';
-                    if (h.tagName === 'H2') {
-                        h.style.borderBottom = '1px solid #e2e8f0';
-                        h.style.marginTop = '30px';
+                // Function to extract CSS rules from stylesheets
+                const extractCSSRules = () => {
+                    let cssText = "";
+                    for (let i = 0; i < document.styleSheets.length; i++) {
+                        const sheet = document.styleSheets[i];
+                        try {
+                            const rules = sheet.cssRules || sheet.rules;
+                            if (rules) {
+                                for (let j = 0; j < rules.length; j++) {
+                                    cssText += rules[j].cssText + "\n";
+                                }
+                            }
+                        } catch (e) {
+                            // CORS issue with external stylesheets
+                            if (sheet.href) {
+                                cssText += `@import url("${sheet.href}");\n`;
+                            }
+                        }
                     }
-                });
-
-                const tables = mainContent.querySelectorAll('table');
-                tables.forEach(t => {
-                    t.style.width = '100%';
-                    t.style.borderCollapse = 'collapse';
-                    t.style.margin = '15px 0';
-                    t.style.fontSize = '12px';
-                    const cells = t.querySelectorAll('th, td');
-                    cells.forEach(c => {
-                        c.style.border = '1px solid #cbd5e1';
-                        c.style.padding = '8px';
-                        c.style.color = '#334155';
-                    });
-                    const headers = t.querySelectorAll('th');
-                    headers.forEach(th => th.style.background = '#f1f5f9');
-                });
-
-                pdfContainer.appendChild(mainContent);
-
-                const opt = {
-                    margin: 10,
-                    filename: filename,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    return cssText;
                 };
 
-                // Generate PDF
-                html2pdf().from(pdfContainer).set(opt).save();
+                // Get clean content clone
+                const contentClone = element.cloneNode(true);
+                const cleanContent = contentClone.innerHTML;
+
+                // Get CSS styles
+                const cssRules = extractCSSRules();
+
+                // Write content to the iframe
+                const frameDoc = printFrame.contentDocument || printFrame.contentWindow.document;
+                frameDoc.open();
+                frameDoc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>${filename.replace('.pdf', '')}</title>
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                        <style>
+                            /* Inlined CSS rules */
+                            ${cssRules}
+
+                            /* Print-specific styles */
+                            @media print {
+                                body {
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+
+                                @page {
+                                    size: A4;
+                                    margin: 15mm;
+                                }
+
+                                .page-break {
+                                    page-break-after: always;
+                                }
+
+                                /* Avoid breaks inside elements */
+                                h1, h2, h3, h4, h5, h6 {
+                                    page-break-after: avoid;
+                                    page-break-inside: avoid;
+                                }
+
+                                table, figure, img {
+                                    page-break-inside: avoid;
+                                }
+
+                                ul, ol {
+                                    page-break-inside: avoid;
+                                }
+                            }
+
+                            /* General body styles */
+                            body {
+                                font-family: 'Inter', sans-serif;
+                                margin: 0;
+                                padding: 0;
+                                background: white;
+                                color: #1e293b;
+                                font-size: 11pt;
+                                line-height: 1.6;
+                            }
+
+                            /* Cover page styles */
+                            .cover-page {
+                                height: 100vh;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                align-items: center;
+                                text-align: center;
+                                padding: 60px 40px;
+                                box-sizing: border-box;
+                                page-break-after: always;
+                            }
+
+                            .cover-content {
+                                margin-top: 80px;
+                            }
+
+                            .cover-title {
+                                font-size: 2.5rem;
+                                color: #4f46e5;
+                                margin-bottom: 1rem;
+                                font-weight: 700;
+                            }
+
+                            .cover-subtitle {
+                                font-size: 1.2rem;
+                                color: #64748b;
+                                margin-bottom: 3rem;
+                                font-weight: 400;
+                            }
+
+                            .cover-info {
+                                text-align: left;
+                                max-width: 500px;
+                                margin: 0 auto;
+                                padding: 2rem;
+                                border: 2px solid #e2e8f0;
+                                border-radius: 12px;
+                                background: #f8fafc;
+                            }
+
+                            .cover-info p {
+                                margin: 12px 0;
+                                font-size: 0.95rem;
+                                color: #334155;
+                            }
+
+                            .cover-info strong {
+                                color: #1e293b;
+                            }
+
+                            /* Main content styles */
+                            .main-content {
+                                padding: 20px;
+                                max-width: 100%;
+                                box-sizing: border-box;
+                            }
+
+                            .main-content * {
+                                word-wrap: break-word;
+                                overflow-wrap: break-word;
+                            }
+
+                            .main-content h1 {
+                                font-size: 1.8rem;
+                                font-weight: 700;
+                                color: #1e293b;
+                                margin-top: 24px;
+                                margin-bottom: 12px;
+                                border-bottom: 2px solid #4f46e5;
+                                padding-bottom: 8px;
+                            }
+
+                            .main-content h2 {
+                                font-size: 1.4rem;
+                                font-weight: 600;
+                                color: #1e293b;
+                                margin-top: 20px;
+                                margin-bottom: 10px;
+                                border-bottom: 1px solid #e2e8f0;
+                                padding-bottom: 6px;
+                            }
+
+                            .main-content h3 {
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                color: #1e293b;
+                                margin-top: 16px;
+                                margin-bottom: 8px;
+                            }
+
+                            .main-content p {
+                                color: #334155;
+                                margin-bottom: 10px;
+                                line-height: 1.6;
+                            }
+
+                            .main-content ul,
+                            .main-content ol {
+                                margin-bottom: 12px;
+                                padding-left: 20px;
+                            }
+
+                            .main-content li {
+                                color: #334155;
+                                margin-bottom: 6px;
+                            }
+
+                            .main-content table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 15px 0;
+                                font-size: 9pt;
+                                table-layout: fixed;
+                            }
+
+                            .main-content th,
+                            .main-content td {
+                                border: 1px solid #cbd5e1;
+                                padding: 8px 6px;
+                                color: #334155;
+                                word-wrap: break-word;
+                                overflow-wrap: break-word;
+                                hyphens: auto;
+                                font-size: 9pt;
+                                line-height: 1.4;
+                            }
+
+                            .main-content th {
+                                background: #f1f5f9;
+                                font-weight: 600;
+                                color: #1e293b;
+                            }
+
+                            .main-content pre,
+                            .main-content code {
+                                background: #f8fafc;
+                                color: #1e293b;
+                                padding: 8px;
+                                border-radius: 4px;
+                                font-size: 9pt;
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
+                            }
+
+                            .main-content .mermaid {
+                                page-break-inside: avoid;
+                                margin: 15px 0;
+                            }
+
+                            /* Hide elements that shouldn't be printed */
+                            button, .no-print {
+                                display: none !important;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <!-- Cover Page -->
+                        <div class="cover-page">
+                            <div class="cover-content">
+                                <h1 class="cover-title">Test Plan</h1>
+                                <div class="cover-subtitle">Generated by AI Test Plan Generator</div>
+                                <div class="cover-info">
+                                    <p><strong>📅 Date:</strong> ${new Date().toLocaleDateString()}</p>
+                                    <p><strong>🤖 AI Model:</strong> ${apiProvider.toUpperCase()}</p>
+                                    <p><strong>👥 Team Composition:</strong> ${projectTeam}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div class="main-content">
+                            ${cleanContent}
+                        </div>
+                    </body>
+                    </html>
+                `);
+                frameDoc.close();
+
+                // Wait for content to load before printing
+                printFrame.onload = () => {
+                    try {
+                        setTimeout(() => {
+                            // Trigger print dialog
+                            printFrame.contentWindow.focus();
+                            printFrame.contentWindow.print();
+
+                            // Clean up after printing
+                            setTimeout(() => {
+                                if (document.body.contains(printFrame)) {
+                                    document.body.removeChild(printFrame);
+                                }
+                                document.title = originalTitle;
+                            }, 500);
+                        }, 1000); // Delay to ensure styles are applied
+                    } catch (err) {
+                        console.error("Print failed:", err);
+                        if (document.body.contains(printFrame)) {
+                            document.body.removeChild(printFrame);
+                        }
+                        document.title = originalTitle;
+                        alert('Failed to generate PDF. Please try again.');
+                    }
+                };
             });
 
             // Initial state check
