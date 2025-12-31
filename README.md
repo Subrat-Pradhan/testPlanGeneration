@@ -1,8 +1,6 @@
 # 🧪 AI Test Plan Generator
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://testplangeneration.netlify.app/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Privacy First](https://img.shields.io/badge/privacy-first-purple.svg)](https://testplangeneration.netlify.app/)
 
 > **Generate comprehensive, AI-powered test plans instantly—100% in your browser. No data storage, no tracking, completely privacy-first.**
 
