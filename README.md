@@ -207,7 +207,7 @@ Traditional test planning is:
 
 <div align="center">
 
-**[⭐ Star this repo](https://github.com/yourusername/testPlanGeneration)** if you find it useful!
+**[⭐ Star this repo](https://github.com/Subrat-Pradhan/testPlanGeneration)** if you find it useful!
 
 Made with 🧪 by testers, for testers.
 
