@@ -76,6 +76,13 @@ body {
 #output {
     line-height: 1.75;
     color: var(--text-dark);
+    /* Performance optimizations for streaming text */
+    contain: content;
+    /* Isolates this element from layout calculations */
+    will-change: contents;
+    /* Hints browser to optimize for content changes */
+    white-space: pre-wrap;
+    /* Preserves formatting without expensive HTML parsing */
 }
 
 #output h1 {

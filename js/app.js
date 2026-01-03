@@ -470,11 +470,10 @@ Format the output as professional, well-structured Markdown with emphasis on tab
             }
 
             // Call AI API based on selected provider
-            let markdownContent = '';
             const provider = providers[apiProvider];
 
-            // Helper to render markdown progressively
-            const renderOutput = (text) => {
+            // Optimized Markdown Parser for StreamRenderer
+            const parseMarkdown = (text) => {
                 try {
                     // Basic Markdown to HTML
                     let html = marked.parse(text, { gfm: true });
@@ -484,12 +483,34 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                         return `<div class="table-wrapper"><table${attrs}>${content}</table></div>`;
                     });
 
-                    output.innerHTML = html;
+                    return html;
                 } catch (e) {
                     console.warn('Rendering incomplete markdown:', e);
-                    output.innerHTML = `<pre class="whitespace-pre-wrap font-mono text-sm text-slate-300">${text}</pre>`;
+                    return `<pre class="whitespace-pre-wrap font-mono text-sm text-slate-300">${text}</pre>`;
                 }
             };
+
+            // Initialize StreamRenderer
+            const streamRenderer = new StreamRenderer(output, {
+                useTextNode: false,
+                markdownParser: parseMarkdown,
+                onComplete: () => {
+                    // Trigger Mermaid Diagram rendering when stream is finished
+                    const mermaidBlocks = output.querySelectorAll('pre code.language-mermaid, pre.mermaid');
+                    mermaidBlocks.forEach(block => {
+                        const code = block.textContent;
+                        const container = document.createElement('div');
+                        container.className = 'mermaid';
+                        container.textContent = code;
+                        block.parentNode.replaceWith(container);
+                    });
+                    if (window.mermaid) { window.mermaid.run?.(); }
+
+                    // Show download button and disclaimer
+                    downloadPdfBtn.classList.remove('hidden');
+                    document.getElementById('aiDisclaimer').classList.remove('hidden');
+                }
+            });
 
             // Hide loading overlay immediately for streaming visual feedback
             loadingOverlay.classList.add('hidden');
@@ -544,8 +565,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                                 const data = JSON.parse(line.slice(6));
                                 const content = data.choices[0].delta.content;
                                 if (content) {
-                                    markdownContent += content;
-                                    renderOutput(markdownContent);
+                                    streamRenderer.appendChunk(content);
                                 }
                             } catch (e) {
                                 console.warn('Error parsing stream chunk', e);
@@ -553,6 +573,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                         }
                     }
                 }
+                streamRenderer.finish();
 
             } else if (apiProvider === 'gemini') {
                 // Google Gemini API call with Streaming
@@ -629,8 +650,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                                             if (jsonObj.candidates && jsonObj.candidates[0] && jsonObj.candidates[0].content) {
                                                 const newText = jsonObj.candidates[0].content.parts[0].text;
                                                 if (newText) {
-                                                    markdownContent += newText;
-                                                    renderOutput(markdownContent);
+                                                    streamRenderer.appendChunk(newText);
                                                 }
                                             }
                                         } catch (e) {
@@ -644,9 +664,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                             }
                         }
 
-                        // Post-processing: Strip trailing separators that might have slipped through
-                        markdownContent = markdownContent.replace(/[\r\n]+[-=]{3,}[\r\n]*$/, '');
-                        renderOutput(markdownContent);
+                        streamRenderer.finish();
 
                         streamSuccess = true;
                         break;
@@ -661,36 +679,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
 
             }
 
-            // Final Polish: Fix tables and Render Mermaid
-            // Check for extremely long lines (malformed tables)
-            const lines = markdownContent.split('\n');
-            let fixedContent = [];
-            for (const line of lines) {
-                if (line.includes('|') && line.length > 1000) {
-                    // Keep it but maybe add a newline if possible? For now, leave as is.
-                    fixedContent.push(line);
-                } else {
-                    fixedContent.push(line);
-                }
-            }
-            markdownContent = fixedContent.join('\n');
 
-            // Final Render
-            renderOutput(markdownContent);
-
-            // Trigger Mermaid
-            let mermaidBlocks = output.querySelectorAll('pre code.language-mermaid, pre.mermaid');
-            mermaidBlocks.forEach(block => {
-                const code = block.textContent;
-                const container = document.createElement('div');
-                container.className = 'mermaid';
-                container.textContent = code;
-                block.parentNode.replaceWith(container);
-            });
-            if (window.mermaid) { window.mermaid.run?.(); }
-
-            downloadPdfBtn.classList.remove('hidden');
-            document.getElementById('aiDisclaimer').classList.remove('hidden');
 
         } catch (error) {
             console.error(error);
