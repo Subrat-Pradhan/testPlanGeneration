@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let apiProvider = sessionStorage.getItem('ai_provider') || 'gemini';
     let apiKey = sessionStorage.getItem(`${apiProvider}_api_key`) || '';
     let testers = [];
-    const tokenLimit = 16000; // Fixed token limit
+    const tokenLimit = 32000; // Increased token limit for Gemini
 
     // Provider configurations
     const providers = {
@@ -347,7 +347,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         loadingOverlay.classList.remove('hidden');
-        output.innerHTML = '';
+        output.innerHTML = ''; // Clear previous output
+
+        // Disable button during generation
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating...';
 
         try {
             // Extract text from file using util
@@ -355,6 +359,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const requirementText = await extractTextFromFile(file);
             const startDateValue = document.getElementById('startDate').value;
             const endDateValue = document.getElementById('endDate').value;
+            const customInstructions = document.getElementById('customInstructions').value.trim();
+
             let eta = 'Not specified';
             if (startDateValue && endDateValue) {
                 eta = `${startDateValue} to ${endDateValue}`;
@@ -369,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 `${tester.specialization} Tester ${idx + 1}: ${tester.experience} years of experience, Specialization: ${tester.specialization}`
             ).join('\n');
 
-            const prompt = `You are an experienced QA Lead. Generate a comprehensive Test Plan based on the following requirements.
+            let prompt = `You are an experienced QA Lead. Generate a comprehensive Test Plan based on the following requirements.
 
 REQUIREMENTS DOCUMENT:
 ${requirementText}
@@ -458,12 +464,39 @@ CRITICAL TABLE FORMATTING RULES:
 
 Format the output as professional, well-structured Markdown with emphasis on tables for better readability.`;
 
+            // Append custom instructions if present
+            if (customInstructions) {
+                prompt += `\n\n----------------\nIMPORTANT CUSTOM INSTRUCTIONS FROM USER:\nThe user has provided specific instructions that MUST override or supplement the above requirements:\n\n${customInstructions}\n\nPlease ensure these custom instructions are fully incorporated into the Test Plan.\n----------------`;
+            }
+
             // Call AI API based on selected provider
-            let markdownContent;
+            let markdownContent = '';
             const provider = providers[apiProvider];
 
+            // Helper to render markdown progressively
+            const renderOutput = (text) => {
+                try {
+                    // Basic Markdown to HTML
+                    let html = marked.parse(text, { gfm: true });
+
+                    // Wrap tables for scrolling
+                    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
+                        return `<div class="table-wrapper"><table${attrs}>${content}</table></div>`;
+                    });
+
+                    output.innerHTML = html;
+                } catch (e) {
+                    console.warn('Rendering incomplete markdown:', e);
+                    output.innerHTML = `<pre class="whitespace-pre-wrap font-mono text-sm text-slate-300">${text}</pre>`;
+                }
+            };
+
+            // Hide loading overlay immediately for streaming visual feedback
+            loadingOverlay.classList.add('hidden');
+            output.innerHTML = '<div class="animate-pulse text-violet-300 font-medium p-4">� Starting generation...</div>';
+
             if (apiProvider === 'openai') {
-                // OpenAI API call
+                // OpenAI API call with Streaming
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -475,7 +508,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                         messages: [
                             {
                                 role: 'system',
-                                content: 'You are an expert QA Lead with extensive experience in creating comprehensive test plans. Always respond in Markdown format. When creating the test plan, use Markdown tables for resource allocation and use Mermaid.js syntax for the testing workflow or timeline diagrams. CRITICAL: Use Markdown tables for Resource Allocation, Task Allocation, Test Schedule, and Risk Assessment sections. Format tables properly with clear headers and detailed information.'
+                                content: 'You are an expert QA Lead. Always respond in Markdown format. Use Markdown tables for structured data.'
                             },
                             {
                                 role: 'user',
@@ -483,168 +516,196 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                             }
                         ],
                         temperature: 0.7,
-                        max_tokens: Math.min(tokenLimit, 16384) // OpenAI GPT-4 max is 16,384
+                        max_tokens: 16384,
+                        stream: true // Enable Streaming
                     })
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    let errorMessage = errorData.error?.message || 'Failed to generate test plan';
+                    throw new Error(errorData.error?.message || 'OpenAI API Error');
+                }
 
-                    if (errorMessage.includes('Incorrect API key') || errorMessage.includes('Invalid API key') || errorMessage.includes('API key')) {
-                        errorMessage = `🔑 API Key Error\n\n${errorMessage}\n\n⚠️ Make sure you're using a valid ${provider.name} API key.\n\nGet your API key from: ${provider.keyUrl}`;
+                // Stream Reader
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                output.innerHTML = ''; // Clear "Starting..." message
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                const content = data.choices[0].delta.content;
+                                if (content) {
+                                    markdownContent += content;
+                                    renderOutput(markdownContent);
+                                }
+                            } catch (e) {
+                                console.warn('Error parsing stream chunk', e);
+                            }
+                        }
                     }
-
-                    throw new Error(errorMessage);
                 }
 
-                const data = await response.json();
-                markdownContent = data.choices[0].message.content;
-
-                // Check if response was truncated
-                if (data.choices[0].finish_reason === 'length') {
-                    markdownContent += '\n\n---\n\n⚠️ **Note:** Response was truncated due to length limits. Some content may be incomplete.';
-                }
             } else if (apiProvider === 'gemini') {
-                // Google Gemini API call - try multiple models with fallback
-                // Using latest models (2.5 series) as 1.5 models are deprecated
+                // Google Gemini API call with Streaming
+
                 const geminiModels = [
                     { name: 'gemini-2.5-pro-latest', version: 'v1beta' },
                     { name: 'gemini-2.5-flash', version: 'v1beta' },
                     { name: 'gemini-pro', version: 'v1' },
-                    { name: 'gemini-1.5-flash', version: 'v1beta' },
-                    { name: 'gemini-pro', version: 'v1beta' }
+                    { name: 'gemini-1.5-flash', version: 'v1beta' }
                 ];
 
+                output.innerHTML = '<div class="animate-pulse text-violet-300 font-medium p-4">🚀 Connecting to Gemini...</div>';
+
+                let streamSuccess = false;
                 let lastError = null;
-                let response = null;
-                let data = null;
 
                 for (const model of geminiModels) {
                     try {
-                        response = await fetch(`https://generativelanguage.googleapis.com/${model.version}/models/${model.name}:generateContent?key=${apiKey}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
+                        // Configuration for production-ready streaming
+                        const requestBody = {
+                            contents: [{ parts: [{ text: `You are an expert QA Lead. always respond in Markdown.\n\n${prompt}` }] }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 8192, // Explicitly set to max allowed for most models
+                                stopSequences: ["\n\n----", "\n\n====="] // Prevent infinite separators
                             },
-                            body: JSON.stringify({
-                                contents: [{
-                                    parts: [{
-                                        text: `You are an expert QA Lead with extensive experience in creating comprehensive test plans. Always respond in Markdown format. When creating the test plan, use Markdown tables for resource allocation and use Mermaid.js syntax for the testing workflow or timeline diagrams. CRITICAL: Use Markdown tables for Resource Allocation, Task Allocation, Test Schedule, and Risk Assessment sections. Format tables properly with clear headers and detailed information.\n\n${prompt}`
-                                    }]
-                                }],
-                                generationConfig: {
-                                    temperature: 0.7,
-                                    maxOutputTokens: Math.min(tokenLimit, 32000) // Gemini max is typically 32K
-                                }
-                            })
+                            safetySettings: [
+                                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+                                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+                                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+                                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" }
+                            ]
+                        };
+
+                        const response = await fetch(`https://generativelanguage.googleapis.com/${model.version}/models/${model.name}:streamGenerateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(requestBody)
                         });
 
-                        if (response.ok) {
-                            data = await response.json();
-                            break; // Success, exit loop
-                        } else {
+                        if (!response.ok) {
                             const errorData = await response.json();
-                            lastError = errorData.error?.message || 'Failed to generate test plan';
-                            // Continue to next model if this one fails
+                            throw new Error(errorData.error?.message || `Error with ${model.name}`);
                         }
+
+                        // Stream Reader
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder("utf-8");
+                        output.innerHTML = ''; // Clear loading text
+
+                        let buffer = '';
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            const chunk = decoder.decode(value, { stream: true });
+                            buffer += chunk;
+
+                            // Parse stream: look for "text" fields in the JSON chunks
+                            let openBraces = 0;
+                            let objectStart = -1;
+
+                            for (let i = 0; i < buffer.length; i++) {
+                                if (buffer[i] === '{') {
+                                    if (openBraces === 0) objectStart = i;
+                                    openBraces++;
+                                } else if (buffer[i] === '}') {
+                                    openBraces--;
+                                    if (openBraces === 0 && objectStart !== -1) {
+                                        const jsonStr = buffer.substring(objectStart, i + 1);
+                                        try {
+                                            const jsonObj = JSON.parse(jsonStr);
+                                            if (jsonObj.candidates && jsonObj.candidates[0] && jsonObj.candidates[0].content) {
+                                                const newText = jsonObj.candidates[0].content.parts[0].text;
+                                                if (newText) {
+                                                    markdownContent += newText;
+                                                    renderOutput(markdownContent);
+                                                }
+                                            }
+                                        } catch (e) {
+                                            // Ignore parsing errors for partial objects
+                                        }
+                                        buffer = buffer.substring(i + 1);
+                                        i = -1;
+                                        objectStart = -1;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Post-processing: Strip trailing separators that might have slipped through
+                        markdownContent = markdownContent.replace(/[\r\n]+[-=]{3,}[\r\n]*$/, '');
+                        renderOutput(markdownContent);
+
+                        streamSuccess = true;
+                        break;
+
                     } catch (err) {
-                        lastError = err.message;
-                        // Continue to next model
+                        lastError = err;
+                        continue;
                     }
                 }
 
-                if (!response || !response.ok || !data) {
-                    let errorMessage = lastError || 'Failed to generate test plan with any available Gemini model';
+                if (!streamSuccess) throw new Error(lastError?.message || 'Gemini Streaming Failed');
 
-                    if (errorMessage.includes('API key') || errorMessage.includes('invalid') || errorMessage.includes('permission') || errorMessage.includes('401') || errorMessage.includes('403')) {
-                        errorMessage = `🔑 API Key Error\n\n${errorMessage}\n\n⚠️ Make sure you're using a valid ${provider.name} API key.\n\nGet your API key from: ${provider.keyUrl}`;
-                    } else {
-                        errorMessage = `⚠️ Model Error\n\n${errorMessage}\n\n💡 Tried multiple Gemini models but none worked. Please check:\n- Your API key is valid and has proper permissions\n- Check available models at: https://ai.google.dev/models/gemini\n- Ensure Gemini API is enabled in your Google Cloud Console`;
-                    }
-
-                    throw new Error(errorMessage);
-                }
-
-                markdownContent = data.candidates[0].content.parts[0].text;
-
-                // Check if response was truncated
-                if (data.candidates[0].finishReason === 'MAX_TOKENS' || data.candidates[0].finishReason === 'OTHER') {
-                    markdownContent += '\n\n---\n\n⚠️ **Note:** Response was truncated due to token limits. Some content may be incomplete. Consider regenerating with more specific requirements.';
-                }
             }
 
-            // Post-process markdown to fix table formatting issues
+            // Final Polish: Fix tables and Render Mermaid
+            // Check for extremely long lines (malformed tables)
             const lines = markdownContent.split('\n');
             let fixedContent = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                // Check if this line looks like a table row but is extremely long
+            for (const line of lines) {
                 if (line.includes('|') && line.length > 1000) {
-                    console.warn('Found extremely long table row at line', i, 'length:', line.length);
+                    // Keep it but maybe add a newline if possible? For now, leave as is.
                     fixedContent.push(line);
                 } else {
                     fixedContent.push(line);
                 }
             }
-
             markdownContent = fixedContent.join('\n');
 
-            // Render markdown with table & Mermaid diagram support
-            let htmlContent;
-            try {
-                htmlContent = marked.parse(markdownContent, { gfm: true });
-                // Wrap all tables in a scrollable container
-                htmlContent = htmlContent.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
-                    return `<div class="table-wrapper"><table${attrs}>${content}</table></div>`;
-                });
-                output.innerHTML = htmlContent;
-                // --- Mermaid.js rendering logic ---
-                let mermaidBlocks = output.querySelectorAll('pre code.language-mermaid, pre.mermaid');
-                mermaidBlocks.forEach(block => {
-                    const code = block.textContent;
-                    const container = document.createElement('div');
-                    container.className = 'mermaid';
-                    container.textContent = code;
-                    block.parentNode.replaceWith(container);
-                });
-                // Render Mermaid diagrams
-                if (window.mermaid) { window.mermaid.run?.(); }
-                downloadPdfBtn.classList.remove('hidden');
-                // Show AI disclaimer
-                document.getElementById('aiDisclaimer').classList.remove('hidden');
-            } catch (parseError) {
-                console.error('Markdown parsing error:', parseError);
-                // Fallback: display raw markdown with code formatting
-                output.innerHTML = `<pre class="bg-slate-100 p-4 rounded-lg overflow-auto">${markdownContent}</pre>`;
-                downloadPdfBtn.classList.remove('hidden');
-                // Show AI disclaimer
-                document.getElementById('aiDisclaimer').classList.remove('hidden');
-            }
+            // Final Render
+            renderOutput(markdownContent);
+
+            // Trigger Mermaid
+            let mermaidBlocks = output.querySelectorAll('pre code.language-mermaid, pre.mermaid');
+            mermaidBlocks.forEach(block => {
+                const code = block.textContent;
+                const container = document.createElement('div');
+                container.className = 'mermaid';
+                container.textContent = code;
+                block.parentNode.replaceWith(container);
+            });
+            if (window.mermaid) { window.mermaid.run?.(); }
+
+            downloadPdfBtn.classList.remove('hidden');
+            document.getElementById('aiDisclaimer').classList.remove('hidden');
 
         } catch (error) {
+            console.error(error);
             const errorText = error.message.replace(/\n/g, '<br>');
-            const provider = providers[apiProvider];
-            output.innerHTML = `
-                <div class="bg-red-50 border border-red-100 rounded-xl p-6 shadow-sm">
-                    <h3 class="text-red-900 font-bold mb-3 text-lg flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        Generation Failed
-                    </h3>
-                    <p class="text-red-700 whitespace-pre-line text-sm leading-relaxed">${errorText}</p>
-                    <div class="mt-4 p-4 bg-white/50 rounded-lg border border-red-100">
-                        <p class="text-xs font-bold text-red-800 uppercase tracking-wide mb-2">Troubleshooting</p>
-                        <ul class="text-sm text-red-700 space-y-1 list-disc list-inside">
-                            <li>Go to <a href="${provider.keyUrl}" target="_blank" class="underline font-medium hover:text-red-900">${provider.name} API Keys</a></li>
-                            <li>Check if your API key is valid and has credits</li>
-                            <li>Ensure you selected the correct AI Provider above</li>
-                        </ul>
-                    </div>
+            output.innerHTML += `
+                <div class="mt-4 bg-red-50 border border-red-100 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-red-900 font-bold mb-2">Generation Error</h3>
+                    <p class="text-red-700 text-sm">${errorText}</p>
                 </div>
             `;
         } finally {
             loadingOverlay.classList.add('hidden');
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Test Plan';
+            checkGenerateButtonState();
         }
     });
 
@@ -751,7 +812,7 @@ Format the output as professional, well-structured Markdown with emphasis on tab
                     .cover-page {
                         height: 100vh;
                         display: flex;
-                        flex-direction: column;
+                        flexDirection: column;
                         justify-content: flex-start;
                         align-items: center;
                         text-align: center;
