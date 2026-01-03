@@ -1,0 +1,532 @@
+:root {
+    /* Glassmorphism Color Palette */
+    --primary: #8b5cf6;
+    /* Violet 500 */
+    --primary-hover: #7c3aed;
+    /* Violet 600 */
+    --primary-light: #ede9fe;
+    /* Violet 100 */
+
+    --bg-gradient-start: #0f172a;
+    /* Slate 900 */
+    --bg-gradient-end: #1e293b;
+    /* Slate 800 */
+
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+    --text-main: #f8fafc;
+    /* Slate 50 */
+    --text-muted: #cbd5e1;
+    /* Slate 300 */
+    --text-dark: #0f172a;
+    /* For light backgrounds */
+
+    --border-light: rgba(255, 255, 255, 0.18);
+    --border-focus: #8b5cf6;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+/* Glassmorphism Card Style */
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-glass);
+    border-radius: var(--radius-xl);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.45);
+}
+
+/* Loading Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Enhanced Markdown Styling - Glassmorphism */
+#output {
+    line-height: 1.75;
+    color: var(--text-dark);
+    /* Performance optimizations for streaming text */
+    contain: content;
+    /* Isolates this element from layout calculations */
+    will-change: contents;
+    /* Hints browser to optimize for content changes */
+    white-space: pre-wrap;
+    /* Preserves formatting without expensive HTML parsing */
+}
+
+#output h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+#output h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-top: 1.75rem;
+    margin-bottom: 1rem;
+    padding-left: 0.75rem;
+    border-left: 4px solid var(--primary);
+}
+
+#output h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+#output p {
+    margin-bottom: 1.25rem;
+    color: #334155;
+}
+
+#output ul,
+#output ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+}
+
+#output li {
+    margin-bottom: 0.5rem;
+    color: #475569;
+}
+
+/* Tables in Output */
+#output .table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#output table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+}
+
+#output th {
+    background: rgba(139, 92, 246, 0.1);
+    color: #1e293b;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+#output td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+#output tr:last-child td {
+    border-bottom: none;
+}
+
+#output tbody tr:hover {
+    background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Code Blocks */
+#output pre {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+#output code {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.875em;
+}
+
+#output :not(pre)>code {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+#output blockquote {
+    border-left: 4px solid var(--primary);
+    background: rgba(139, 92, 246, 0.05);
+    padding: 1rem;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin: 1.5rem 0;
+    color: #475569;
+    font-style: italic;
+}
+
+/* Mermaid Diagram Container */
+.mermaid {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+/* Ensure SVG scales properly */
+.mermaid svg {
+    max-width: 100%;
+    height: auto;
+    min-width: 600px;
+    /* Ensure diagrams don't get squeezed too small */
+}
+
+/* Dark Theme - Output Section Styling */
+@media (prefers-color-scheme: dark) {
+    #output {
+        background: rgba(30, 41, 59, 0.3);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+    }
+
+    #output h1,
+    #output h2,
+    #output h3,
+    #output h4,
+    #output h5,
+    #output h6 {
+        color: #f8fafc !important;
+    }
+
+    #output p {
+        color: #cbd5e1 !important;
+    }
+
+    #output ul,
+    #output ol {
+        color: #cbd5e1 !important;
+    }
+
+    #output li {
+        color: #cbd5e1 !important;
+    }
+
+    #output strong {
+        color: #f8fafc !important;
+    }
+
+    #output th {
+        background: rgba(139, 92, 246, 0.2) !important;
+        color: #f8fafc !important;
+    }
+
+    #output td {
+        color: #cbd5e1 !important;
+    }
+
+    #output blockquote {
+        color: #cbd5e1 !important;
+        background: rgba(139, 92, 246, 0.1) !important;
+    }
+
+    #output :not(pre)>code {
+        background: rgba(139, 92, 246, 0.2) !important;
+        color: #c4b5fd !important;
+    }
+
+    #output .table-wrapper {
+        background: rgba(30, 41, 59, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+}
+
+
+
+/* Safari Backdrop Support */
+.backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+/* Range Slider Browser Consistency */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+}
+
+/* Webkit (Chrome, Safari, Edge) - Track */
+input[type=range]::-webkit-slider-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Webkit - Thumb */
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #8b5cf6;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -5px;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    background: #7c3aed;
+}
+
+/* Firefox - Track */
+input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Firefox - Thumb */
+input[type=range]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #8b5cf6;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type=range]::-moz-range-thumb:hover {
+    background: #7c3aed;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+}
+
+input[type=range]:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+}
+
+/* Experience Progress Bar */
+.experience-bar {
+    width: 100%;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.experience-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
+}
+
+.experience-bar:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Light Theme Support */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-gradient-start: #f8fafc;
+        --bg-gradient-end: #e2e8f0;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(148, 163, 184, 0.3);
+        --text-main: #0f172a;
+        --text-muted: #475569;
+        --border-light: rgba(148, 163, 184, 0.3);
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    }
+
+    .card {
+        background: var(--glass-bg);
+        border-color: var(--glass-border);
+    }
+
+    /* Light theme text colors */
+    h1,
+    h2,
+    h3,
+    label,
+    p,
+    span,
+    button {
+        color: var(--text-main) !important;
+    }
+
+    /* Light theme input styles */
+    input[type="password"],
+    input[type="date"],
+    select {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(148, 163, 184, 0.3) !important;
+        color: var(--text-main) !important;
+    }
+
+    /* Light theme option styles */
+    select option {
+        background: white !important;
+        color: #0f172a !important;
+    }
+
+    input::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    /* Light theme buttons */
+    #saveApiKey,
+    #addTester,
+    #downloadPdf {
+        background: var(--primary) !important;
+        color: white !important;
+    }
+
+    /* Light theme links */
+    a {
+        color: var(--primary) !important;
+    }
+
+    /* Light theme borders */
+    .border-white\/10,
+    .border-white\/20 {
+        border-color: rgba(148, 163, 184, 0.2) !important;
+    }
+
+    /* Light theme backgrounds */
+    .bg-white\/5,
+    .bg-white\/10 {
+        background-color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Light theme loading overlay */
+    #loadingOverlay {
+        background-color: rgba(15, 23, 42, 0.5) !important;
+    }
+
+    #loadingOverlay>div {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+
+    #loadingOverlay h3,
+    #loadingOverlay p {
+        color: var(--text-main) !important;
+    }
+
+    /* Light theme output placeholder */
+    #output .text-white\/30,
+    #output .text-white\/50 {
+        color: #94a3b8 !important;
+    }
+
+    /* Light theme footer */
+    .text-white\/50,
+    .text-white\/60,
+    .text-white\/70,
+    .text-white\/80 {
+        color: var(--text-muted) !important;
+    }
+}
+
+/* Dark Theme - Dropdown Option Styling */
+@media (prefers-color-scheme: dark) {
+    select option {
+        background-color: #1e293b;
+        color: #f8fafc;
+    }
+}
+
+/* Force option colors for all themes */
+select option {
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 8px;
+}
+
+/* Light mode override for options */
+@media (prefers-color-scheme: light) {
+    select option {
+        background-color: white;
+        color: #0f172a;
+    }
+}
+
+/* Scrollbar hiding utilities */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
